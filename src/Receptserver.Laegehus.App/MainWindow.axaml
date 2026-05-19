@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Receptserver.Laegehus.App.ViewModels"
+        xmlns:dtos="using:Receptserver.Core.Dtos"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="700"
+        x:Class="Receptserver.Laegehus.App.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Lægehus — opret recept"
+        Width="780" Height="780"
+        WindowStartupLocation="CenterScreen">
+
+    <ScrollViewer>
+        <StackPanel Margin="24" Spacing="14">
+
+            <TextBlock Text="Opret recept" FontSize="26" FontWeight="Bold" />
+            <TextBlock Text="Udfyld formularen og send recepten til serveren."
+                       Foreground="Gray" />
+
+            <StackPanel>
+                <TextBlock Text="Lægehus (ydernummer):" />
+                <ComboBox ItemsSource="{Binding Laegehuse}"
+                          SelectedItem="{Binding SelectedLaegehus, Mode=TwoWay}"
+                          MinWidth="450"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type dtos:LaegehusDto}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="{Binding Ydernummer}" FontWeight="Bold" />
+                                <TextBlock Text="—" />
+                                <TextBlock Text="{Binding Navn}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Text="Patient CPR-nummer:" />
+                <TextBox Text="{Binding CprNummer, Mode=TwoWay}"
+                         MaxLength="11" />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Text="Tilknyttet apotek (valgfri):" />
+                <ComboBox ItemsSource="{Binding Apoteker}"
+                          SelectedItem="{Binding SelectedApotek, Mode=TwoWay}"
+                          MinWidth="450"
+                          HorizontalAlignment="Stretch"
+                          PlaceholderText="Ingen tilknytning">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type dtos:ApotekDto}">
+                            <TextBlock Text="{Binding Navn}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+
+            <Separator Margin="0,8" />
+
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Ordinationer" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
+                <Button Grid.Column="1"
+                        Content="+ Tilføj ordination"
+                        Command="{Binding AddOrdinationCommand}" />
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Ordinationer}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:OrdinationInputViewModel}">
+                        <Border BorderBrush="#cccccc" BorderThickness="1"
+                                CornerRadius="6" Padding="12" Margin="0,4"
+                                Background="#fafafa">
+                            <Grid ColumnDefinitions="2*,2*,Auto" RowDefinitions="Auto,Auto">
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Lægemiddel:" FontSize="12" />
+                                    <TextBox Text="{Binding Laegemiddel, Mode=TwoWay}"
+                                             PlaceholderText="fx Paracetamol 500mg" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="Dosis:" FontSize="12" />
+                                    <TextBox Text="{Binding Dosis, Mode=TwoWay}"
+                                             PlaceholderText="fx 1 tablet x 3 daglig" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="2" Width="100">
+                                    <TextBlock Text="Antal udl.:" FontSize="12" />
+                                    <NumericUpDown Value="{Binding AntalUdleveringer, Mode=TwoWay}"
+                                                   Minimum="1" Maximum="20" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Separator Margin="0,8" />
+
+            <Button Content="Opret recept"
+                    Command="{Binding OpretReceptCommand}"
+                    HorizontalAlignment="Right"
+                    Padding="24,10"
+                    FontWeight="Bold"
+                    FontSize="14" />
+
+            <Border IsVisible="{Binding ShowStatus}"
+                    Padding="12"
+                    CornerRadius="4"
+                    Margin="0,8,0,0">
+                <Border.Styles>
+                    <Style Selector="Border">
+                        <Setter Property="Background" Value="#d1e7dd" />
+                    </Style>
+                </Border.Styles>
+                <TextBlock Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap"
+                           Classes.error="{Binding IsError}"
+                           Classes.success="{Binding IsSuccess}">
+                    <TextBlock.Styles>
+                        <Style Selector="TextBlock.success">
+                            <Setter Property="Foreground" Value="#0f5132" />
+                        </Style>
+                        <Style Selector="TextBlock.error">
+                            <Setter Property="Foreground" Value="#842029" />
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Window>
