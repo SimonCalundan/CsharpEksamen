@@ -1,0 +1,38 @@
+# Build output
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.swp
+
+# macOS
+.DS_Store
+
+# SQLite database (regenereres af migrations ved API-start)
+*.db
+*.db-shm
+*.db-wal
+
+# Logs og test-resultater
+*.log
+TestResults/
+
+# NuGet
+*.nupkg
+.nuget/
+
+# Secrets og lokale config
+*.env
+secrets.json
+appsettings.Local.json
+
+# Personlige eksamens-noter (Anki cards, study notes)
+docs/_private/

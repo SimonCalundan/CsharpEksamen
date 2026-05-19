@@ -1,0 +1,37 @@
+classDiagram
+    direction LR
+
+    class Laegehus {
+        +int Id
+        +string Ydernummer
+        +string Navn
+        +string Adresse
+    }
+
+    class Apotek {
+        +int Id
+        +string Navn
+        +string Adresse
+    }
+
+    class Recept {
+        +int Id
+        +string Ydernummer
+        +string CprNummer
+        +DateTime Oprettelsesdato
+        +bool Lukket
+        +int? TilknyttetApotekId
+    }
+
+    class Ordination {
+        +int Id
+        +string Laegemiddel
+        +string Dosis
+        +int AntalUdleveringer
+        +int AntalForetagneUdleveringer
+        +int ReceptId
+    }
+
+    Recept "1" *-- "1..*" Ordination : indeholder
+    Recept "n" o-- "0..1" Apotek : valgfri tilknytning
+    Recept ..> Laegehus : refererer via Ydernummer
