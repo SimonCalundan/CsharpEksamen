@@ -1,0 +1,172 @@
+@page "/"
+@rendermode InteractiveServer
+@using Receptserver.Core.Dtos
+@using Receptserver.Apotek.Web.Services
+@inject ApotekApiClient ApiClient
+
+<PageTitle>Apotekssystem</PageTitle>
+
+<h1>Apotekssystem</h1>
+<p class="lead">Find aktive recepter på en patient og foretag udleveringer.</p>
+
+<div class="search-bar">
+    <label for="cprInput">CPR-nummer:</label>
+    <input id="cprInput"
+           class="cpr-input"
+           @bind="cprInput"
+           @bind:event="oninput"
+           @onkeydown="OnCprKeyDown"
+           placeholder="ddmmåå-xxxx" />
+    <button class="btn-primary" @onclick="SoegAsync" disabled="@isLoading">
+        @(isLoading ? "Søger..." : "Søg")
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-error" role="alert">
+        @errorMessage
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success" role="status">
+        @successMessage
+    </div>
+}
+
+@if (recepter is not null)
+{
+    @if (recepter.Count == 0)
+    {
+        <p class="no-results">Ingen aktive recepter fundet for CPR <strong>@lastSearchedCpr</strong>.</p>
+    }
+    else
+    {
+        <h2>Recepter (@recepter.Count)</h2>
+        @foreach (var r in recepter)
+        {
+            <div class="recept-card">
+                <header>
+                    <h3>Recept #@r.Id</h3>
+                    <div class="meta">
+                        <span>Ydernummer: <strong>@r.Ydernummer</strong></span>
+                        <span>Oprettet: @r.Oprettelsesdato.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</span>
+                        @if (r.TilknyttetApotek is not null)
+                        {
+                            <span>Tilknyttet apotek: <strong>@r.TilknyttetApotek.Navn</strong></span>
+                        }
+                    </div>
+                </header>
+
+                <table class="ordinationer">
+                    <thead>
+                        <tr>
+                            <th>Lægemiddel</th>
+                            <th>Dosis</th>
+                            <th>Udleveret</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in r.Ordinationer)
+                        {
+                            var fuldtUdleveret = o.AntalForetagneUdleveringer >= o.AntalUdleveringer;
+                            <tr class="@(fuldtUdleveret ? "fuldt-udleveret" : "")">
+                                <td>@o.Laegemiddel</td>
+                                <td>@o.Dosis</td>
+                                <td>@o.AntalForetagneUdleveringer / @o.AntalUdleveringer</td>
+                                <td>
+                                    <button class="btn-secondary"
+                                            @onclick="() => UdleverAsync(o.Id)"
+                                            disabled="@(fuldtUdleveret || isLoading)">
+                                        Udlever
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+}
+
+@code {
+    private string cprInput = "";
+    private string? lastSearchedCpr;
+    private IReadOnlyList<ReceptDto>? recepter;
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+
+    private async Task OnCprKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SoegAsync();
+        }
+    }
+
+    private async Task SoegAsync()
+    {
+        if (string.IsNullOrWhiteSpace(cprInput))
+        {
+            errorMessage = "Indtast et CPR-nummer.";
+            return;
+        }
+
+        errorMessage = null;
+        successMessage = null;
+        isLoading = true;
+        try
+        {
+            recepter = await ApiClient.SoegRecepterAsync(cprInput);
+            lastSearchedCpr = cprInput;
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = $"Fejl ({ex.StatusCode}): {ex.Message}";
+            recepter = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke kontakte server: {ex.Message}";
+            recepter = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task UdleverAsync(int ordinationId)
+    {
+        errorMessage = null;
+        successMessage = null;
+        isLoading = true;
+        try
+        {
+            var opdateret = await ApiClient.UdleverAsync(ordinationId);
+            successMessage = $"Udlevering registreret: {opdateret.Laegemiddel} ({opdateret.AntalForetagneUdleveringer}/{opdateret.AntalUdleveringer}).";
+
+            if (lastSearchedCpr is not null)
+            {
+                recepter = await ApiClient.SoegRecepterAsync(lastSearchedCpr);
+            }
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = $"Fejl ({ex.StatusCode}): {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke kontakte server: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
