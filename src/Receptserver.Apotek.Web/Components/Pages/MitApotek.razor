@@ -1,0 +1,133 @@
+@page "/mit-apotek"
+@rendermode InteractiveServer
+@using Receptserver.Core.Dtos
+@using Receptserver.Apotek.Web.Services
+@inject ApotekApiClient ApiClient
+
+<PageTitle>Mit apoteks recepter</PageTitle>
+
+<h1>Mit apoteks recepter</h1>
+<p class="lead">Recepter tilknyttet et apotek.</p>
+
+<div class="search-bar">
+    <label for="apotekSelect">Vælg apotek:</label>
+    <select id="apotekSelect"
+            class="cpr-input"
+            @onchange="OnApotekChanged">
+        <option value="">— Vælg —</option>
+        @foreach (var a in apoteker)
+        {
+            <option value="@a.Id" selected="@(selectedApotekId == a.Id)">@a.Navn</option>
+        }
+    </select>
+    @if (isLoading)
+    {
+        <span>Henter...</span>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-error" role="alert">
+        @errorMessage
+    </div>
+}
+
+@if (selectedApotekId.HasValue && recepter is not null)
+{
+    @if (recepter.Count == 0)
+    {
+        <p class="no-results">Ingen aktive recepter tilknyttet det valgte apotek.</p>
+    }
+    else
+    {
+        <h2>Aktive recepter (@recepter.Count)</h2>
+        @foreach (var r in recepter)
+        {
+            <div class="recept-card">
+                <header>
+                    <h3>Recept #@r.Id</h3>
+                    <div class="meta">
+                        <span>CPR: <strong>@r.CprNummer</strong></span>
+                        <span>Ydernummer: <strong>@r.Ydernummer</strong></span>
+                        <span>Oprettet: @r.Oprettelsesdato.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</span>
+                    </div>
+                </header>
+
+                <table class="ordinationer">
+                    <thead>
+                        <tr>
+                            <th>Lægemiddel</th>
+                            <th>Dosis</th>
+                            <th>Udleveret</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in r.Ordinationer)
+                        {
+                            var fuldt = o.AntalForetagneUdleveringer >= o.AntalUdleveringer;
+                            <tr class="@(fuldt ? "fuldt-udleveret" : "")">
+                                <td>@o.Laegemiddel</td>
+                                <td>@o.Dosis</td>
+                                <td>@o.AntalForetagneUdleveringer / @o.AntalUdleveringer</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+}
+
+@code {
+    private IReadOnlyList<ApotekDto> apoteker = new List<ApotekDto>();
+    private int? selectedApotekId;
+    private IReadOnlyList<ReceptDto>? recepter;
+    private string? errorMessage;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            apoteker = await ApiClient.GetApotekerAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke hente apoteker: {ex.Message}";
+        }
+    }
+
+    private async Task OnApotekChanged(ChangeEventArgs e)
+    {
+        errorMessage = null;
+        var value = e.Value?.ToString();
+        if (string.IsNullOrEmpty(value) || !int.TryParse(value, out var id))
+        {
+            selectedApotekId = null;
+            recepter = null;
+            return;
+        }
+
+        selectedApotekId = id;
+        isLoading = true;
+        try
+        {
+            recepter = await ApiClient.GetRecepterForApotekAsync(id);
+        }
+        catch (ApiException ex)
+        {
+            errorMessage = $"Fejl ({ex.StatusCode}): {ex.Message}";
+            recepter = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunne ikke kontakte server: {ex.Message}";
+            recepter = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

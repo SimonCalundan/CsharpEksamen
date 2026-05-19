@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Receptserver.Core.Dtos;
+using Receptserver.Core.Persistence;
 using Receptserver.Core.Services;
 
 namespace Receptserver.Api.Controllers;
@@ -9,10 +11,20 @@ namespace Receptserver.Api.Controllers;
 public class ApotekController : ControllerBase
 {
     private readonly IRecipeService _recipeService;
+    private readonly IReceptDbContext _db;
 
-    public ApotekController(IRecipeService recipeService)
+    public ApotekController(IRecipeService recipeService, IReceptDbContext db)
     {
         _recipeService = recipeService;
+        _db = db;
+    }
+
+    // Liste alle apoteker (så klienten kan vælge "sit apotek")
+    [HttpGet("apoteker")]
+    public async Task<IReadOnlyList<ApotekDto>> GetApoteker()
+    {
+        var liste = await _db.Apoteker.OrderBy(a => a.Navn).ToListAsync();
+        return liste.Select(a => a.ToDto()).ToList();
     }
 
     // Find aktive (ikke-lukkede) recepter for en patient
@@ -20,6 +32,14 @@ public class ApotekController : ControllerBase
     public async Task<IReadOnlyList<ReceptDto>> SoegRecepter([FromQuery] string cpr)
     {
         var recepter = await _recipeService.FindAktiveRecepterForCprAsync(cpr);
+        return recepter.Select(r => r.ToDto()).ToList();
+    }
+
+    // Find aktive recepter tilknyttet et specifikt apotek (valgfri opgavekrav)
+    [HttpGet("apoteker/{apotekId:int}/recepter")]
+    public async Task<IReadOnlyList<ReceptDto>> GetRecepterForApotek(int apotekId)
+    {
+        var recepter = await _recipeService.FindAktiveRecepterForApotekAsync(apotekId);
         return recepter.Select(r => r.ToDto()).ToList();
     }
 

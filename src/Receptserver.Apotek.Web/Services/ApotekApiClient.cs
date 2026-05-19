@@ -24,6 +24,20 @@ public class ApotekApiClient
             ?? new List<ReceptDto>();
     }
 
+    public async Task<IReadOnlyList<ApotekDto>> GetApotekerAsync()
+    {
+        return await _http.GetFromJsonAsync<List<ApotekDto>>("api/apotek/apoteker", JsonOptions)
+            ?? new List<ApotekDto>();
+    }
+
+    public async Task<IReadOnlyList<ReceptDto>> GetRecepterForApotekAsync(int apotekId)
+    {
+        var response = await _http.GetAsync($"api/apotek/apoteker/{apotekId}/recepter");
+        await EnsureSuccessAsync(response);
+        return await response.Content.ReadFromJsonAsync<List<ReceptDto>>(JsonOptions)
+            ?? new List<ReceptDto>();
+    }
+
     public async Task<OrdinationDto> UdleverAsync(int ordinationId)
     {
         var response = await _http.PostAsync($"api/apotek/ordinationer/{ordinationId}/udlever", null);

@@ -5,6 +5,37 @@ html, body {
     background: #f5f5f7;
 }
 
+.topbar {
+    background: #1d1d1f;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.topbar .brand {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.topbar .nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.topbar .nav-links a {
+    color: #d1d1d6;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.topbar .nav-links a:hover {
+    color: white;
+}
+
 main {
     max-width: 960px;
     margin: 0 auto;

@@ -83,6 +83,16 @@ public class RecipeService : IRecipeService
             .ToListAsync();
     }
 
+    public async Task<IReadOnlyList<Recept>> FindAktiveRecepterForApotekAsync(int apotekId)
+    {
+        return await _db.Recepter
+            .Include(r => r.Ordinationer)
+            .Include(r => r.TilknyttetApotek)
+            .Where(r => r.TilknyttetApotekId == apotekId && !r.Lukket)
+            .OrderByDescending(r => r.Oprettelsesdato)
+            .ToListAsync();
+    }
+
     public async Task<Ordination> UdleverAsync(int ordinationId)
     {
         var ordination = await _db.Ordinationer

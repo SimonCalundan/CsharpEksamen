@@ -14,5 +14,7 @@ public interface IRecipeService
 
     Task<IReadOnlyList<Recept>> FindAktiveRecepterForCprAsync(string cprNummer);
 
+    Task<IReadOnlyList<Recept>> FindAktiveRecepterForApotekAsync(int apotekId);
+
     Task<Ordination> UdleverAsync(int ordinationId);
 }
