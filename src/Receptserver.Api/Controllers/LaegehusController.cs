@@ -19,7 +19,7 @@ public class LaegehusController : ControllerBase
         _db = db;
     }
 
-    // Lægehus app henter sine egne lægehuse (så brugeren kan vælge ydernummer)
+    // Liste med alle laegehuse
     [HttpGet("laegehuse")]
     public async Task<IReadOnlyList<LaegehusDto>> GetLaegehuse()
     {
@@ -27,7 +27,7 @@ public class LaegehusController : ControllerBase
         return liste.Select(l => l.ToDto()).ToList();
     }
 
-    // Lægehus app henter apoteker (så lægen evt. kan tilknytte recepten til ét)
+    // Liste med alle apoteker
     [HttpGet("apoteker")]
     public async Task<IReadOnlyList<ApotekDto>> GetApoteker()
     {
@@ -35,7 +35,7 @@ public class LaegehusController : ControllerBase
         return liste.Select(a => a.ToDto()).ToList();
     }
 
-    // Opret recept (lægehus-systemets kerne use case)
+    // Opret recept 
     [HttpPost("recepter")]
     public async Task<ActionResult<ReceptDto>> OpretRecept([FromBody] OpretReceptRequest request)
     {

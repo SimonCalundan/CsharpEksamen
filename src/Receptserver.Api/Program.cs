@@ -15,7 +15,7 @@ var connectionString = builder.Configuration.GetConnectionString("ReceptDb")
 
 builder.Services.AddDbContext<ReceptDbContext>(opts => opts.UseSqlite(connectionString));
 
-// Bind IReceptDbContext til samme instans som ReceptDbContext i samme scope.
+// Binder IReceptDbContext til samme instans som ReceptDbContext i samme scope.
 // Services i Core afhænger af interfacet; ASP.NET resolver det til den konkrete DbContext.
 builder.Services.AddScoped<IReceptDbContext>(sp => sp.GetRequiredService<ReceptDbContext>());
 
@@ -23,7 +23,7 @@ builder.Services.AddScoped<IRecipeService, RecipeService>();
 
 var app = builder.Build();
 
-// Kør pending migrations automatisk ved opstart (prototype-bekvemt).
+// Kør pending migrations automatisk ved opstart
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ReceptDbContext>();

@@ -3,8 +3,7 @@ using Receptserver.Core.Exceptions;
 
 namespace Receptserver.Api.Middleware;
 
-// Catches business-layer exceptions and maps them to HTTP responses.
-// Keeps controllers free of try/catch boilerplate.
+// Fanger domæne-exceptions og konverterer dem til HTTP-svar. 
 public class DomainExceptionMiddleware
 {
     private readonly RequestDelegate _next;

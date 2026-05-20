@@ -3,9 +3,8 @@ using Receptserver.Core.Entities;
 
 namespace Receptserver.Core.Persistence;
 
-// Abstraction over the EF Core DbContext. Lets services in Core depend on
-// the data layer's surface without referencing Receptserver.Data directly.
-// Implemented by ReceptDbContext in Receptserver.Data.
+// Abstraktion ovenpå EF Core DbContext fra Data-laget. Lar services i Core 
+// afhænge af interfacet, uden at referere til Receptserver.Data direkte.
 public interface IReceptDbContext
 {
     DbSet<Laegehus> Laegehuse { get; }

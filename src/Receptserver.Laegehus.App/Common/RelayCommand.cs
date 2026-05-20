@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace Receptserver.Laegehus.App.Common;
 
-// Simpel ICommand-implementation til MVVM. Binder en async metode til en knap
+// ICommand-implementation til MVVM. Binder en async metode til en knap
 // og deaktiverer knappen mens metoden kører, så brugeren ikke kan klikke dobbelt.
 public class RelayCommand : ICommand
 {

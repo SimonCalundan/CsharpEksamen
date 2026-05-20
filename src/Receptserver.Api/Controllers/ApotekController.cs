@@ -19,7 +19,7 @@ public class ApotekController : ControllerBase
         _db = db;
     }
 
-    // Liste alle apoteker (så klienten kan vælge "sit apotek")
+    // Liste med alle apoteker 
     [HttpGet("apoteker")]
     public async Task<IReadOnlyList<ApotekDto>> GetApoteker()
     {
@@ -35,7 +35,7 @@ public class ApotekController : ControllerBase
         return recepter.Select(r => r.ToDto()).ToList();
     }
 
-    // Find aktive recepter tilknyttet et specifikt apotek (valgfri opgavekrav)
+    // Find aktive recepter tilknyttet et specifikt apotek 
     [HttpGet("apoteker/{apotekId:int}/recepter")]
     public async Task<IReadOnlyList<ReceptDto>> GetRecepterForApotek(int apotekId)
     {
@@ -44,10 +44,10 @@ public class ApotekController : ControllerBase
     }
 
     // Foretag udlevering på en ordination
-    [HttpPost("ordinationer/{id:int}/udlever")]
-    public async Task<ActionResult<OrdinationDto>> Udlever(int id)
+    [HttpPost("ordinationer/{ordinationId:int}/udlever")]
+    public async Task<ActionResult<OrdinationDto>> Udlever(int ordinationId)
     {
-        var ordination = await _recipeService.UdleverAsync(id);
+        var ordination = await _recipeService.UdleverAsync(ordinationId);
         return Ok(ordination.ToDto());
     }
 }

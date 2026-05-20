@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Receptserver.Data;
 
-// Used ONLY by EF Core tooling (dotnet ef migrations / database update) when
-// running commands from this project. The actual runtime DbContext is created
-// by the API project via dependency injection.
+// Gør at jeg kan køre EF Core tools (dotnet ef migrations / database update) 
+// når jeg kører commands fra dette projekt. Den faktisk runtime DbContext bliver 
+// lavet af API projektet via DI
 public class ReceptDbContextFactory : IDesignTimeDbContextFactory<ReceptDbContext>
 {
     public ReceptDbContext CreateDbContext(string[] args)

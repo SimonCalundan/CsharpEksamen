@@ -6,7 +6,7 @@ public class NotFoundException : DomainException
     public string Identifier { get; }
 
     public NotFoundException(string entityType, string identifier)
-        : base($"{entityType} med identifikatoren '{identifier}' blev ikke fundet.")
+        : base($"{entityType} med identifier '{identifier}' blev ikke fundet.")
     {
         EntityType = entityType;
         Identifier = identifier;

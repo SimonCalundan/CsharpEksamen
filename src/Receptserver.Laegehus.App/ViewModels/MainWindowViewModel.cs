@@ -85,14 +85,14 @@ public class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            var laeger = await _api.GetLaegehuseAsync();
+            var nyeLaegehuse = await _api.GetLaegehuseAsync();
             Laegehuse.Clear();
-            foreach (var l in laeger) Laegehuse.Add(l);
+            foreach (var l in nyeLaegehuse) Laegehuse.Add(l);
             SelectedLaegehus = Laegehuse.Count > 0 ? Laegehuse[0] : null;
 
-            var apoteker = await _api.GetApotekerAsync();
+            var nyeApoteker = await _api.GetApotekerAsync();
             Apoteker.Clear();
-            foreach (var a in apoteker) Apoteker.Add(a);
+            foreach (var a in nyeApoteker) Apoteker.Add(a);
         }
         catch (Exception ex)
         {
