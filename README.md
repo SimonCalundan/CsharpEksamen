@@ -35,6 +35,11 @@ Alle 5 projekter skal bygge med 0 warnings og 0 errors. SQLite-databasen generer
 
 Følgende skal startes i denne rækkefølge (de to klienter kalder API'et over HTTP).
 
+> **macOS-note:** Hvis du har downloadet projektet som ZIP via browser, så ryd Gatekeeper-quarantine inden første build (ellers fejler Avalonia-appen med "beskadiget"):
+> ```bash
+> xattr -cr <udpakket-projektmappe>
+> ```
+
 ### 1. Web API (kerne — skal køre først)
 
 ```bash
